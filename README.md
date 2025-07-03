@@ -11,7 +11,7 @@ SBEmu Inspector provides a clean interface for developers working with Azure Ser
 ### Using the Published Image
 
 ```bash
-docker run -d -p 8080:8080 ghcr.io/yourusername/tools-sbemu-inspector:latest
+docker run -d -p 8080:8080 ghcr.io/noradno/norad-tools-sbemu-inspector:latest
 ```
 
 Access the application at http://localhost:8080
@@ -20,8 +20,8 @@ Access the application at http://localhost:8080
 
 ```bash
 # Clone and build
-git clone https://github.com/yourusername/tools-sbemu-inspector.git
-cd tools-sbemu-inspector
+git clone https://github.com/noradno/norad-tools-sbemu-inspector.git
+cd norad-tools-sbemu-inspector
 docker build -f docker/Dockerfile -t sbemu-inspector:dev .
 
 # Run your local build
