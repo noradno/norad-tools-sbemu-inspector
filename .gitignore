@@ -7,7 +7,7 @@ obj/
 /node_modules
 /wwwroot/node_modules
 
-### react ###
+### React ###
 .DS_*
 *.log
 logs
@@ -22,6 +22,22 @@ bower_components
 psd
 thumb
 sketch
+
+# Frontend build output
+frontend/dist/
+frontend/build/
+
+# Dependencies
+frontend/node_modules/
+
+# Frontend environment files
+frontend/.env.local
+frontend/.env.*.local
+
+# Frontend logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
 
 ### Rider ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
