@@ -1,0 +1,9 @@
+services:
+  sbemu-inspector:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: sbemu-inspector:local
+    container_name: sbemu-inspector-dev
+    ports:
+      - "8080:8080"
