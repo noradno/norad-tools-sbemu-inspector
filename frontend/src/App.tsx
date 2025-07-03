@@ -1,5 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useUIStore } from '@/stores/uiStore';
+import { Header } from '@/components/layout/Header';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { useEffect } from 'react';
 import './App.css';
 
@@ -23,7 +25,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-background text-foreground">
-
+        <Header />
+        <MainLayout />
       </div>
     </QueryClientProvider>
   );
