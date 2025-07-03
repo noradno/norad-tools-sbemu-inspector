@@ -42,6 +42,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
+// Map API endpoints
+app.MapConnectionEndpoints();
+app.MapMessageEndpoints();
 
 // Add health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
