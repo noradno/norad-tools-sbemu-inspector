@@ -1,12 +1,16 @@
 import { useConnectionStore } from '@/stores/connectionStore';
 import { useUIStore } from '@/stores/uiStore';
+import { useMessageStore } from '@/stores/messageStore';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Monitor, Sun, Moon, Settings, Wifi, WifiOff } from 'lucide-react';
+import { Monitor, Sun, Moon, Settings, Wifi, WifiOff, LogOut } from 'lucide-react';
+import { useState } from 'react';
 
 export function Header() {
-  const { connection } = useConnectionStore();
-  const { theme, setTheme, toggleSendForm } = useUIStore();
+  const { connection, disconnect, isConnecting } = useConnectionStore();
+  const { theme, setTheme, toggleSendForm, resetTransientState } = useUIStore();
+  const { resetStore } = useMessageStore();
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
 
   const isConnected = connection?.isConnected || false;
   const isEmulator = connection?.isEmulator || false;
@@ -26,6 +30,23 @@ export function Header() {
         return <Moon className="h-4 w-4" />;
       default:
         return <Monitor className="h-4 w-4" />;
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if (window.confirm('Are you sure you want to disconnect? This will clear your current session.')) {
+      try {
+        setIsDisconnecting(true);
+        await disconnect();
+        
+        // Clean up other stores
+        resetStore();
+        resetTransientState();
+      } catch (error) {
+        console.error('Failed to disconnect:', error);
+      } finally {
+        setIsDisconnecting(false);
+      }
     }
   };
 
@@ -56,9 +77,31 @@ export function Header() {
 
           {/* Actions */}
           {isConnected && (
-            <Button onClick={toggleSendForm} size="sm">
-              Send Message
-            </Button>
+            <>
+              <Button onClick={toggleSendForm} size="sm">
+                Send Message
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleDisconnect}
+                disabled={isConnecting || isDisconnecting}
+                title="Disconnect from Service Bus"
+              >
+                {isDisconnecting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-gray-600 mr-2"></div>
+                    Disconnecting...
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Disconnect
+                  </>
+                )}
+              </Button>
+            </>
           )}
 
           {/* Theme Toggle */}

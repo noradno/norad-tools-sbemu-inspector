@@ -3,10 +3,33 @@ import { ConnectionForm } from '@/components/connection/ConnectionForm';
 import { MessageList } from '@/components/messages/MessageList';
 import { SendMessageForm } from '@/components/messages/SendMessageForm';
 import { useUIStore } from '@/stores/uiStore';
+import { useMessageStore } from '@/stores/messageStore';
+import { Button } from '@/components/ui/button';
+import { LogOut } from 'lucide-react';
+import { useState } from 'react';
 
 export function MainLayout() {
-  const { connection } = useConnectionStore();
-  const { isSendFormOpen } = useUIStore();
+  const { connection, disconnect, isConnecting } = useConnectionStore();
+  const { isSendFormOpen, resetTransientState } = useUIStore();
+  const { resetStore } = useMessageStore();
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+
+  const handleDisconnect = async () => {
+    if (window.confirm('Are you sure you want to disconnect? This will clear your current session.')) {
+      try {
+        setIsDisconnecting(true);
+        await disconnect();
+        
+        // Clean up other stores
+        resetStore();
+        resetTransientState();
+      } catch (error) {
+        console.error('Failed to disconnect:', error);
+      } finally {
+        setIsDisconnecting(false);
+      }
+    }
+  };
 
   if (!connection?.isConnected) {
     return (
@@ -38,7 +61,28 @@ export function MainLayout() {
           
           {/* Connection Info */}
           <div className="bg-card p-4 rounded-lg border">
-            <h3 className="font-semibold mb-2">Connection Details</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold">Connection Details</h3>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleDisconnect}
+                disabled={isConnecting || isDisconnecting}
+                title="Disconnect from Service Bus"
+              >
+                {isDisconnecting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-3 w-3 border-2 border-gray-300 border-t-gray-600 mr-1"></div>
+                    Disconnecting...
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="h-3 w-3 mr-1" />
+                    Disconnect
+                  </>
+                )}
+              </Button>
+            </div>
             <div className="space-y-1 text-sm">
               <div>
                 <span className="text-muted-foreground">Host:</span> {connection.host}
