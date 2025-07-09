@@ -38,6 +38,50 @@ public class ServiceBusService : IServiceBusService, IAsyncDisposable
             var host = GetServiceBusHost(request.ConnectionString);
             var isEmulator = IsEmulatorConnection(host);
 
+            // Validate connection by attempting to create a receiver
+            try
+            {
+                _logger.LogInformation("Validating connection to Service Bus at {Host}", host);
+                
+                ServiceBusReceiver testReceiver;
+                if (string.IsNullOrWhiteSpace(request.SubscriptionName))
+                {
+                    testReceiver = _client.CreateReceiver(request.EntityName);
+                }
+                else
+                {
+                    testReceiver = _client.CreateReceiver(request.EntityName, request.SubscriptionName);
+                }
+
+                // Attempt to peek a message with a very short timeout
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
+                {
+                    await testReceiver.PeekMessageAsync(cancellationToken: cts.Token);
+                }
+
+                await testReceiver.DisposeAsync();
+                _logger.LogInformation("Connection validation successful");
+            }
+            catch (ServiceBusException sbEx) when (sbEx.Reason == ServiceBusFailureReason.MessagingEntityNotFound)
+            {
+                _logger.LogWarning("Entity '{Entity}' not found, but connection is valid", request.EntityName);
+            }
+            catch (Exception validationEx)
+            {
+                if (_client != null)
+                {
+                    await _client.DisposeAsync();
+                    _client = null;
+                }
+                
+                var errorMessage = isEmulator 
+                    ? $"Cannot connect to Service Bus Emulator at {host}. Ensure the emulator is running and accessible."
+                    : $"Cannot connect to Service Bus at {host}. Please check your connection string and network connectivity.";
+                    
+                _logger.LogError(validationEx, "Connection validation failed: {Error}", errorMessage);
+                return new OperationResult<ConnectionInfo>(false, null, errorMessage);
+            }
+
             CurrentConnection = new ConnectionInfo(
                 host,
                 string.IsNullOrWhiteSpace(request.SubscriptionName) ? "Queue" : "Topic",
