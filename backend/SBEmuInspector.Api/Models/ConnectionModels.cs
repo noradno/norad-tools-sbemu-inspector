@@ -18,8 +18,8 @@ public record ConnectionInfo(
 /// <summary>Default configuration for Azure Service Bus Emulator</summary>
 public static class EmulatorDefaults
 {
-    public const string DefaultConnectionString = "Endpoint=sb://localhost:5672;SharedAccessKeyName=all;SharedAccessKey=CLwo3FQ3S39Z4pFOQDefaiUd1dSsli4XOAj3Y9Uh1E=;UseDevelopmentEmulator=true";
+    public const string DefaultConnectionString = "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
     public const string EmulatorHost = "localhost:5672";
-    public static readonly string[] CommonTestQueues = { "test-queue", "dev-queue", "debug-queue" };
-    public static readonly string[] CommonTestTopics = { "test-topic", "dev-topic" };
+    public static readonly string[] CommonTestQueues = { "sample-queue", "dev-queue" };
+    public static readonly string[] CommonTestTopics = { "domain-events", "dev-topic" };
 }
