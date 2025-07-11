@@ -47,6 +47,11 @@ app.MapConnectionEndpoints();
 app.MapMessageEndpoints();
 
 // Add health check endpoint
-app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+app.MapGet("/api/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+    .WithTags("Health")
+    .WithName("HealthCheck")
+    .WithSummary("Health check endpoint")
+    .WithDescription("Returns the health status of the API")
+    .Produces(StatusCodes.Status200OK);
 
 app.Run();
