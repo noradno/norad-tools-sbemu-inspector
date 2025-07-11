@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ConnectionInfo, ConnectionRequest } from '@/types/connection';
 import { connectionApi } from '@/services/api';
+import { toast } from 'sonner';
 
 interface ConnectionStore {
   connection: ConnectionInfo | null;
@@ -27,11 +28,14 @@ export const useConnectionStore = create<ConnectionStore>()(
           set({ isConnecting: true, error: null });
           const connection = await connectionApi.connect(request);
           set({ connection, isConnecting: false });
+          toast.success(`Connected to ${connection.entityName}`);
         } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to connect';
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to connect',
+            error: errorMessage,
             isConnecting: false 
           });
+          toast.error(errorMessage);
           throw error;
         }
       },
@@ -50,11 +54,15 @@ export const useConnectionStore = create<ConnectionStore>()(
           
           localStorage.removeItem('sbemu-connection-store');
           localStorage.removeItem('sbemu-message-store');
+          
+          toast.success('Disconnected successfully');
         } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to disconnect';
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to disconnect',
+            error: errorMessage,
             isConnecting: false 
           });
+          toast.error(errorMessage);
           throw error;
         }
       },

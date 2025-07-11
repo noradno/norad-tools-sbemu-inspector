@@ -44,7 +44,7 @@ export function SendMessageForm() {
       setProperties([{ key: '', value: '' }]);
       toggleSendForm();
     } catch (error) {
-      console.error('Failed to send message:', error);
+      // Error is already handled in the store with toast
     } finally {
       setIsSubmitting(false);
     }

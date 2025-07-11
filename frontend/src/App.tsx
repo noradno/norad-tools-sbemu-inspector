@@ -3,6 +3,7 @@ import { useUIStore } from '@/stores/uiStore';
 import { Header } from '@/components/layout/Header';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useApiHealthCheck } from '@/hooks/useApiHealthCheck';
+import { Toaster } from '@/components/ui/sonner';
 import { useEffect } from 'react';
 import './App.css';
 
@@ -31,6 +32,7 @@ function App() {
       <div className="min-h-screen bg-background text-foreground">
         <Header />
         <MainLayout />
+        <Toaster position="top-center"/>
       </div>
     </QueryClientProvider>
   );

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Message, PeekedMessageInfo, SendMessageRequest, MessageFilters } from '@/types/message';
 import { messageApi } from '@/services/api';
+import { toast } from 'sonner';
 
 interface MessageStore {
   messages: PeekedMessageInfo[];
@@ -32,6 +33,7 @@ export const useMessageStore = create<MessageStore>()(
           set({ messages: response.items, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
+          toast.error(error instanceof Error ? error.message : 'Failed to peek messages');
           throw error;
         }
       },
@@ -43,12 +45,15 @@ export const useMessageStore = create<MessageStore>()(
           set({ isLoading: false });
           
           if ('messageId' in response) {
+            toast.success('Message received successfully');
             await get().peekMessages();
             return response as Message;
           }
+          toast.info('No messages available to receive');
           return null;
         } catch (error) {
           set({ isLoading: false });
+          toast.error(error instanceof Error ? error.message : 'Failed to receive message');
           throw error;
         }
       },
@@ -59,9 +64,11 @@ export const useMessageStore = create<MessageStore>()(
           await messageApi.sendMessage(message);
           set({ isLoading: false });
           
+          toast.success('Message sent successfully');
           await get().peekMessages();
         } catch (error) {
           set({ isLoading: false });
+          toast.error(error instanceof Error ? error.message : 'Failed to send message');
           throw error;
         }
       },

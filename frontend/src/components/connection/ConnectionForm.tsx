@@ -15,14 +15,19 @@ export function ConnectionForm() {
   const [availableEntities, setAvailableEntities] = useState<string[]>([]);
   const [showDefaults, setShowDefaults] = useState(false);
   
-  const { connect, isConnecting, error, clearError, isApiOnline } = useConnectionStore();
+  const { connect, isConnecting, clearError, isApiOnline } = useConnectionStore();
 
   useEffect(() => {
     // Load emulator defaults
-    connectionApi.getDefaults().then(defaults => {
-      setConnectionString(defaults.connectionString);
-      setAvailableEntities([...defaults.commonQueues, ...defaults.commonTopics]);
-    });
+    connectionApi.getDefaults()
+      .then(defaults => {
+        setConnectionString(defaults.connectionString);
+        setAvailableEntities([...defaults.commonQueues, ...defaults.commonTopics]);
+      })
+      .catch(() => {
+        // If we can't load defaults, just use empty values
+        // This is not critical, so we don't show an error toast
+      });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,8 +41,7 @@ export function ConnectionForm() {
         subscriptionName: subscriptionName || undefined,
       });
     } catch (error) {
-      // Error is already handled by the store
-      console.error('Connection failed:', error);
+      // Error is already handled by the store and shown as toast
     }
   };
 
@@ -128,11 +132,6 @@ export function ConnectionForm() {
             />
           </div>
 
-          {error && (
-            <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
-              {error}
-            </div>
-          )}
 
           <Button type="submit" disabled={isConnecting || !isApiOnline} className="w-full">
             {isConnecting ? (

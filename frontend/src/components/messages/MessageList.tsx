@@ -9,6 +9,7 @@ import { RefreshCw, Mail, Download, Trash2, Eye } from 'lucide-react';
 import { formatRelativeTime } from '@/utils/formatters';
 import { MessageViewModal } from './MessageViewModal';
 import { messageApi } from '@/services/api';
+import { toast } from 'sonner';
 
 export function MessageList() {
   const { messages, isLoading, peekMessages, receiveMessage } = useMessageStore();
@@ -18,42 +19,39 @@ export function MessageList() {
 
   useEffect(() => {
     if (connection?.isConnected && isApiOnline) {
-      peekMessages().catch(error => {
-        console.error('Failed to peek messages:', error);
+      peekMessages().catch(() => {
+        // Error is already handled in the store with toast
       });
     }
   }, [connection?.isConnected, isApiOnline, peekMessages]);
 
   const handleRefresh = async () => {
     if (!isApiOnline) {
-      console.warn('Cannot refresh messages: API is offline');
+      toast.warning('Cannot refresh messages: API is offline');
       return;
     }
     try {
       await peekMessages();
     } catch (error) {
-      console.error('Failed to refresh messages:', error);
+      // Error is already handled in the store with toast
     }
   };
 
   const handleReceiveMessage = async () => {
     if (!isApiOnline) {
-      console.warn('Cannot receive messages: API is offline');
+      toast.warning('Cannot receive messages: API is offline');
       return;
     }
     try {
-      const message = await receiveMessage();
-      if (message) {
-        console.log('Received message:', message);
-      }
+      await receiveMessage();
     } catch (error) {
-      console.error('Failed to receive message:', error);
+      // Error is already handled in the store with toast
     }
   };
 
   const handleViewMessage = async (messageId: string) => {
     if (!isApiOnline) {
-      console.warn('Cannot view message details: API is offline');
+      toast.warning('Cannot view message details: API is offline');
       return;
     }
     try {
@@ -61,7 +59,7 @@ export function MessageList() {
       const fullMessage = await messageApi.getMessage(messageId);
       openMessageModal(fullMessage);
     } catch (error) {
-      console.error('Failed to fetch message details:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to fetch message details');
     } finally {
       setLoadingMessageId(null);
     }

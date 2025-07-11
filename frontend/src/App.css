@@ -57,3 +57,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Sonner toast styles */
+[data-sonner-toaster] {
+  font-family: inherit;
+}
+
+[data-sonner-toast] {
+  font-family: inherit;
+}

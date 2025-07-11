@@ -43,7 +43,7 @@ export function Header() {
         resetStore();
         resetTransientState();
       } catch (error) {
-        console.error('Failed to disconnect:', error);
+        // Error is already handled in the store with toast
       } finally {
         setIsDisconnecting(false);
       }
