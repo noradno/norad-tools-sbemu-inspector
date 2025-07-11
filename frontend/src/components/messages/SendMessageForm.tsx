@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMessageStore } from '@/stores/messageStore';
 import { useUIStore } from '@/stores/uiStore';
+import { useConnectionStore } from '@/stores/connectionStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ export function SendMessageForm() {
 
   const { sendMessage } = useMessageStore();
   const { toggleSendForm } = useUIStore();
+  const { isApiOnline } = useConnectionStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +83,13 @@ export function SendMessageForm() {
         </div>
       </CardHeader>
       <CardContent>
+        {!isApiOnline && (
+          <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-md">
+            <p className="text-sm text-destructive">
+              Cannot send messages: API is offline. Please ensure the backend service is running.
+            </p>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="messageBody">Message Body</Label>
@@ -140,7 +149,7 @@ export function SendMessageForm() {
             ))}
           </div>
 
-          <Button type="submit" disabled={isSubmitting || !body.trim()} className="w-full">
+          <Button type="submit" disabled={isSubmitting || !body.trim() || !isApiOnline} className="w-full">
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

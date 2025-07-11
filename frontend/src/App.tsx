@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useUIStore } from '@/stores/uiStore';
 import { Header } from '@/components/layout/Header';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { useApiHealthCheck } from '@/hooks/useApiHealthCheck';
 import { useEffect } from 'react';
 import './App.css';
 
@@ -16,6 +17,9 @@ const queryClient = new QueryClient({
 
 function App() {
   const { theme, setTheme } = useUIStore();
+  
+  // Monitor API health
+  useApiHealthCheck();
 
   useEffect(() => {
     // Initialize theme

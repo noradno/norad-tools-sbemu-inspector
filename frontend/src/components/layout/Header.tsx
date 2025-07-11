@@ -7,7 +7,7 @@ import { Monitor, Sun, Moon, Settings, Wifi, WifiOff, LogOut } from 'lucide-reac
 import { useState } from 'react';
 
 export function Header() {
-  const { connection, disconnect, isConnecting } = useConnectionStore();
+  const { connection, disconnect, isConnecting, isApiOnline } = useConnectionStore();
   const { theme, setTheme, toggleSendForm, resetTransientState } = useUIStore();
   const { resetStore } = useMessageStore();
   const [isDisconnecting, setIsDisconnecting] = useState(false);
@@ -60,18 +60,25 @@ export function Header() {
               EMULATOR MODE
             </Badge>
           )}
+          {!isApiOnline && (
+            <Badge variant="destructive" className="animate-pulse">
+              API OFFLINE
+            </Badge>
+          )}
         </div>
 
         <div className="flex items-center space-x-4">
           {/* Connection Status */}
           <div className="flex items-center space-x-2">
-            {isConnected ? (
+            {isConnected && isApiOnline ? (
               <Wifi className="h-4 w-4 text-green-600" />
             ) : (
               <WifiOff className="h-4 w-4 text-red-600" />
             )}
             <span className="text-sm text-muted-foreground">
-              {isConnected ? `${connection?.entityName} @ ${connection?.host}` : 'Not connected'}
+              {isConnected ? (
+                isApiOnline ? `${connection?.entityName} @ ${connection?.host}` : `${connection?.entityName} @ ${connection?.host} (API Offline)`
+              ) : 'Not connected'}
             </span>
           </div>
 

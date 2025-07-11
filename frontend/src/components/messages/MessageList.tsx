@@ -12,21 +12,35 @@ import { messageApi } from '@/services/api';
 
 export function MessageList() {
   const { messages, isLoading, peekMessages, receiveMessage } = useMessageStore();
-  const { connection } = useConnectionStore();
+  const { connection, isApiOnline } = useConnectionStore();
   const { selectedMessage, isMessageModalOpen, openMessageModal, closeMessageModal } = useUIStore();
   const [loadingMessageId, setLoadingMessageId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (connection?.isConnected) {
-      peekMessages();
+    if (connection?.isConnected && isApiOnline) {
+      peekMessages().catch(error => {
+        console.error('Failed to peek messages:', error);
+      });
     }
-  }, [connection?.isConnected, peekMessages]);
+  }, [connection?.isConnected, isApiOnline, peekMessages]);
 
-  const handleRefresh = () => {
-    peekMessages();
+  const handleRefresh = async () => {
+    if (!isApiOnline) {
+      console.warn('Cannot refresh messages: API is offline');
+      return;
+    }
+    try {
+      await peekMessages();
+    } catch (error) {
+      console.error('Failed to refresh messages:', error);
+    }
   };
 
   const handleReceiveMessage = async () => {
+    if (!isApiOnline) {
+      console.warn('Cannot receive messages: API is offline');
+      return;
+    }
     try {
       const message = await receiveMessage();
       if (message) {
@@ -38,6 +52,10 @@ export function MessageList() {
   };
 
   const handleViewMessage = async (messageId: string) => {
+    if (!isApiOnline) {
+      console.warn('Cannot view message details: API is offline');
+      return;
+    }
     try {
       setLoadingMessageId(messageId);
       const fullMessage = await messageApi.getMessage(messageId);
@@ -72,7 +90,8 @@ export function MessageList() {
                 variant="outline"
                 size="sm"
                 onClick={handleRefresh}
-                disabled={isLoading}
+                disabled={isLoading || !isApiOnline}
+                title={!isApiOnline ? 'API is offline' : 'Refresh messages'}
               >
                 <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
@@ -81,7 +100,8 @@ export function MessageList() {
                 variant="outline"
                 size="sm"
                 onClick={handleReceiveMessage}
-                disabled={isLoading || messages.length === 0}
+                disabled={isLoading || messages.length === 0 || !isApiOnline}
+                title={!isApiOnline ? 'API is offline' : 'Receive message'}
               >
                 <Download className="h-4 w-4 mr-1" />
                 Receive
@@ -126,7 +146,8 @@ export function MessageList() {
                       variant="ghost" 
                       size="sm"
                       onClick={() => handleViewMessage(message.messageId)}
-                      disabled={loadingMessageId === message.messageId}
+                      disabled={loadingMessageId === message.messageId || !isApiOnline}
+                      title={!isApiOnline ? 'API is offline' : 'View message details'}
                     >
                       {loadingMessageId === message.messageId ? (
                         <RefreshCw className="h-4 w-4 animate-spin" />

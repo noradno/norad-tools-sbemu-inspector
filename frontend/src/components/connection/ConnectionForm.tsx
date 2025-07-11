@@ -15,7 +15,7 @@ export function ConnectionForm() {
   const [availableEntities, setAvailableEntities] = useState<string[]>([]);
   const [showDefaults, setShowDefaults] = useState(false);
   
-  const { connect, isConnecting, error, clearError } = useConnectionStore();
+  const { connect, isConnecting, error, clearError, isApiOnline } = useConnectionStore();
 
   useEffect(() => {
     // Load emulator defaults
@@ -58,6 +58,13 @@ export function ConnectionForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {!isApiOnline && (
+          <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-md">
+            <p className="text-sm text-destructive">
+              Cannot connect: API is offline. Please ensure the backend service is running.
+            </p>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="connectionString">Connection String</Label>
@@ -127,7 +134,7 @@ export function ConnectionForm() {
             </div>
           )}
 
-          <Button type="submit" disabled={isConnecting} className="w-full">
+          <Button type="submit" disabled={isConnecting || !isApiOnline} className="w-full">
             {isConnecting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

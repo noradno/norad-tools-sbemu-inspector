@@ -7,9 +7,11 @@ interface ConnectionStore {
   connection: ConnectionInfo | null;
   isConnecting: boolean;
   error: string | null;
+  isApiOnline: boolean;
   connect: (request: ConnectionRequest) => Promise<void>;
   disconnect: () => Promise<void>;
   clearError: () => void;
+  setApiOnline: (online: boolean) => void;
 }
 
 export const useConnectionStore = create<ConnectionStore>()(
@@ -18,6 +20,7 @@ export const useConnectionStore = create<ConnectionStore>()(
       connection: null,
       isConnecting: false,
       error: null,
+      isApiOnline: true,
 
       connect: async (request: ConnectionRequest) => {
         try {
@@ -36,17 +39,16 @@ export const useConnectionStore = create<ConnectionStore>()(
       disconnect: async () => {
         try {
           set({ isConnecting: true, error: null });
-          await connectionApi.disconnect();
+          
+          try {
+            await connectionApi.disconnect();
+          } catch (apiError) {
+            console.warn('API disconnect failed:', apiError);
+          }
+          
           set({ connection: null, isConnecting: false });
           
-          // Clear persisted connection from localStorage
           localStorage.removeItem('sbemu-connection-store');
-          
-          // Call cleanup methods from other stores
-          // Note: We can't directly import here due to circular dependency
-          // So we'll rely on the calling component to handle cleanup
-          
-          // Clean up localStorage for messages if needed
           localStorage.removeItem('sbemu-message-store');
         } catch (error) {
           set({ 
@@ -58,6 +60,8 @@ export const useConnectionStore = create<ConnectionStore>()(
       },
 
       clearError: () => set({ error: null }),
+      
+      setApiOnline: (online: boolean) => set({ isApiOnline: online }),
     }),
     {
       name: 'sbemu-connection-store',
