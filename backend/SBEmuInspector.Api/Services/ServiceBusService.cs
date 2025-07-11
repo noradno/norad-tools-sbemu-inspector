@@ -1,5 +1,6 @@
 using Azure.Messaging.ServiceBus;
 using SBEmuInspector.Api.Models;
+using System.Text.Json;
 using ConnectionInfo = SBEmuInspector.Api.Models.ConnectionInfo;
 
 namespace SBEmuInspector.Api.Services;
@@ -260,7 +261,7 @@ public class ServiceBusService : IServiceBusService, IAsyncDisposable
                 {
                     if (!string.IsNullOrEmpty(property.Key))
                     {
-                        message.ApplicationProperties[property.Key] = property.Value;
+                        message.ApplicationProperties[property.Key] = ConvertJsonElementToValue(property.Value);
                     }
                 }
             }
@@ -351,6 +352,26 @@ public class ServiceBusService : IServiceBusService, IAsyncDisposable
     private static bool IsEmulatorConnection(string host)
     {
         return host.Contains("localhost") || host.Contains("127.0.0.1") || host.Contains("::1");
+    }
+
+    private static object ConvertJsonElementToValue(object value)
+    {
+        if (value is JsonElement jsonElement)
+        {
+            return jsonElement.ValueKind switch
+            {
+                JsonValueKind.String => jsonElement.GetString()!,
+                JsonValueKind.Number when jsonElement.TryGetInt32(out var intValue) => intValue,
+                JsonValueKind.Number when jsonElement.TryGetInt64(out var longValue) => longValue,
+                JsonValueKind.Number => jsonElement.GetDouble(),
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                JsonValueKind.Null => null!,
+                _ => jsonElement.ToString()
+            };
+        }
+        
+        return value;
     }
 
     public async ValueTask DisposeAsync()
