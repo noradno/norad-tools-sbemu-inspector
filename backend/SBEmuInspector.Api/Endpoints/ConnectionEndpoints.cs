@@ -90,5 +90,15 @@ public static class ConnectionEndpoints
         .WithSummary("Get emulator default values")
         .WithDescription("Returns default connection string and common entity names for the Azure Service Bus Emulator")
         .Produces(StatusCodes.Status200OK);
+
+        // GET /api/connections/scenarios - Get configuration scenarios
+        group.MapGet("/scenarios", (IConfiguration configuration) =>
+        {
+            return Results.Ok(EmulatorDefaults.GetConfigurationScenarios(configuration));
+        })
+        .WithName("GetConfigurationScenarios")
+        .WithSummary("Get configuration scenarios")
+        .WithDescription("Returns available configuration scenarios for different deployment environments, including custom configurations")
+        .Produces<EmulatorConfigurationScenario[]>(StatusCodes.Status200OK);
     }
 }
