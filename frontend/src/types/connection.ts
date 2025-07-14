@@ -33,3 +33,12 @@ export interface EmulatorDefaults {
   commonQueues: string[];
   commonTopics: string[];
 }
+
+export interface EmulatorConfigurationScenario {
+  name: string;
+  description: string;
+  connectionString: string;
+  host: string;
+  commonQueues: string[];
+  commonTopics: string[];
+}

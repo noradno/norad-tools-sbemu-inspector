@@ -1,4 +1,4 @@
-import { ConnectionRequest, ConnectionInfo, EmulatorDefaults } from '@/types/connection';
+import { ConnectionRequest, ConnectionInfo, EmulatorDefaults, EmulatorConfigurationScenario } from '@/types/connection';
 import { Message, PeekedMessageInfo, SendMessageRequest } from '@/types/message';
 import { PagedResponse, BulkOperationResult } from '@/types/api';
 
@@ -56,6 +56,10 @@ export const connectionApi = {
 
   async getDefaults(): Promise<EmulatorDefaults> {
     return apiCall<EmulatorDefaults>('/connections/defaults');
+  },
+
+  async getScenarios(): Promise<EmulatorConfigurationScenario[]> {
+    return apiCall<EmulatorConfigurationScenario[]>('/connections/scenarios');
   },
 };
 

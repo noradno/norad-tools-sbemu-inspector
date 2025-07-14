@@ -29,7 +29,7 @@ public record EmulatorConfigurationScenario(
 /// <summary>Default configuration for Azure Service Bus Emulator</summary>
 public static class EmulatorDefaults
 {
-    public const string DefaultConnectionString = "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
+    public const string DefaultConnectionString = "Endpoint=sb://ndev-servicebus-emulator;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
     public const string EmulatorHost = "localhost:5672";
     public static readonly string[] CommonTestQueues = { "sample-queue", "dev-queue", "test-queue", "integration-queue" };
     public static readonly string[] CommonTestTopics = { "domain-events", "dev-topic", "test-topic", "integration-events" };
@@ -113,7 +113,7 @@ public static class EmulatorDefaults
         new(
             "Both in Docker",
             "Both Inspector and Emulator running in Docker containers",
-            "Endpoint=sb://servicebus-emulator;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
+            "Endpoint=sb://ndev-servicebus-emulator;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
             "servicebus-emulator:5672",
             CommonTestQueues,
             CommonTestTopics
